@@ -1,0 +1,40 @@
+---
+version: "3.7"
+services:
+
+  authn:
+    environment:
+      - "GITHUB_OAUTH2_CLIENT_ID=dd8b766b825f2ed9dbc0"
+      - "GITHUB_OAUTH2_CLIENT_SECRET=26efb402eed37c9e3645617bb1babe4d4b0f1b26"
+      - "GITHUB_OAUTH2_CALLBACK_URL=https://127.0.0.1:5600/oauth2/callback"
+
+  api:
+    environment:
+      INFLUXDB_HOST: "172.17.0.1"
+      INFLUXDB_PORT: 8086
+      # default token
+      INFLUXDB_TOKEN: ""
+      # this overrides INFLUXDB_TOKEN which is default if no secret
+      SECRET_KEY: /run/secrets/influxdb_token.txt
+      INFLUXDB_ORG: "ccat"
+      INFLUXDB_BUCKET: "Housekeeping"
+      INFLUXDB_READ_TIMEOUT: 60000  # in ms
+      # Rest API
+      LOGGING_LEVEL: "DEBUG"
+    command: ["uvicorn", "app.main:app", "--reload", "--proxy-headers", "--host", "0.0.0.0", "--port", "8000"]
+    volumes:
+      - "./api/app:/app:ro"
+
+  tcs:
+    depends_on:
+      - acu
+
+  acu:
+    image: ghcr.io/ccatobs/antenna-control-unit/antenna-control-unit:latest
+
+  web:
+    environment:
+      - "MIX_ENV=dev"
+    volumes:
+      - "./web/fyst/lib:/fyst/lib:ro"
+

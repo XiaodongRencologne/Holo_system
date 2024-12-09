@@ -1,0 +1,29 @@
+
+[sources.docker-local]
+  type = "docker_logs"
+  docker_host = "/var/run/docker.sock"
+  exclude_containers = []
+
+  # Identify zero-width space as first line of a multiline block.
+  multiline.condition_pattern = '^\x{200B}'
+  multiline.mode = "halt_before"
+  multiline.start_pattern = '^\x{200B}'
+  multiline.timeout_ms = 1000
+
+[sinks.loki]
+  # General
+  type = "loki"
+  inputs = ["docker*"]
+  endpoint = "http://loki:3100"
+  out_of_order_action = "accept"
+
+  # Encoding
+  encoding.codec = "json"
+
+  # Loki Labels
+  labels.host = '{{ host }}'
+  labels.container_name = '{{ container_name }}'
+  labels.compose_service = '{{ label."com.docker.compose.service" }}'
+  labels.compose_project = '{{ label."com.docker.compose.project" }}'
+  labels.source = '{{ stream }}'
+
