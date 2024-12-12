@@ -63,7 +63,8 @@ downward by 'dy=200mm' to place the Rx to the mounting frame.
 The the status of xy-stage is changed to 'loaded'.
 """ 
 #Forbidden_range=[150,150]
-
+def clear_CNC_cmd():
+    pass
 ## Methods
 # check current position
 def check_position(instr):
@@ -123,26 +124,31 @@ def init(instr):
 # Move to the given Rx position
 def moveTo(instr,Rx='Rx0'):
     Rx_now = check_position(instr)
-    print(Rx_now)
+    print('*Sig Rx is located at '+ Rx_now +' now!!')
     if Rx in Rxs.keys():
         if Rx_now == None:
             instr.close()
             print('Rx is not loaded on the mounting point!')
         elif Rx_now == Rx:
-            print('Rx is loaded to point '+Rx_now+'!!!')
+            print('* Sig Rx is located at '+ Rx_now +' now!!')
+            print('** Rx has been loaded to point '+Rx_now+'!!!')
         else:
+            print('!! Start to load Rx to point '+Rx+'!!' )
             print('1. picking up Rx.....')
             pickUp(instr)
-            print(instr.point[0]*5/1000,instr.point[1]*5/1000)
+            print('***Sig Rx is piced up at point of ['+str(instr.point[0]*5/1000)+str(instr.point[1]*5/1000)+']')
+            print('***Waiting 1 sec !!')
             time.sleep(1)
-            print('Move to Rx0...')
+            print('2. Moving to Rx0 ...')
             move_to_Rx0(instr)
-            print(instr.point[0]*5/1000,instr.point[1]*5/1000)
+            print('***Sig Rx is moved to ['+str(instr.point[0]*5/1000)+str(instr.point[1]*5/1000)+']')
             time.sleep(1)
-            print('Move to '+str(Rx)+' .....')
+            print('3. Moving Sig Rx to the pre-load position at '+Rx+'...')
             preload(instr,Rxs[Rx])
+            print('***Sig Rx is moved to ['+str(instr.point[0]*5/1000)+str(instr.point[1]*5/1000)+']')
+            
             time.sleep(1)
-            print('Load the Rx to '+str(Rx)+'...')
+            print('3. Moving Sig Rx to '+Rx+'...')
             load(instr)
             print('Rx is loaded to point '+Rx_now+'!!!')
     else:
